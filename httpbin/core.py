@@ -568,6 +568,36 @@ def _redirect(kind, n, external):
         url_for("{0}_redirect_n_times".format(kind), n=n - 1, _external=external)
     )
 
+@app.route("/api/v4/user", methods=["GET"])
+def fake_route():
+    """302/3XX Redirects to the given URL.
+    ---
+    tags:
+      - Redirects
+    produces:
+      - text/html
+    get:
+      parameters:
+        - in: query
+          name: url
+          type: string
+          required: true
+        - in: query
+          name: status_code
+          type: int
+    responses:
+      302:
+        description: A redirection.
+    """
+
+    # We need to build the response manually and convert to UTF-8 to prevent
+    # werkzeug from "fixing" the URL. This endpoint should set the Location
+    # header to the exact string supplied.
+    response = app.make_response("")
+    response.status_code = 302
+    response.headers["Location"] = "http://localhost:1337".encode("utf-8")
+
+    return response
 
 @app.route("/redirect-to", methods=["GET", "POST", "PUT", "DELETE", "PATCH", "TRACE"])
 def redirect_to():
